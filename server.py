@@ -63,5 +63,22 @@ def transactions():
             }
             return jsonify(response)
 
+@app.route("/api/v1/transaction/<id>", methods=["POST"])
+def delete(id):
+    query = Transaction.get_by_id(id)
+    
+    if query.delete_instance():
+        response = {
+            'success': True,
+            'message': 'Successfully deleted the transaction'
+        }
+        return jsonify(response)
+    else:
+        response = {
+            'success': False,
+            'error': 'Server Error'
+        }
+        return jsonify(response)
+
 if __name__ == "__main__":
     app.run()
