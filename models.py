@@ -19,4 +19,4 @@ class BaseModel(pw.Model):
 
 class Transaction(BaseModel):
     text = pw.CharField()
-    amount = pw.CharField()
+    amount = pw.IntegerField()
