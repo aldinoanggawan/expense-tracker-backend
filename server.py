@@ -1,5 +1,5 @@
 import peeweedbevolve
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, json, jsonify
 from models import db, Transaction
 from flask_cors import CORS
 
@@ -23,44 +23,45 @@ def migrate():
 def index():
     return render_template('index.html')
 
-@app.route("/api/v1/transactions", methods=["GET"])
-def get_transactions():
-    transactions = Transaction.select()
-    transactions_array = []
-    for transaction in transactions:
-        transactions_array.append({'id': transaction.id, 'text': transaction.text, 'amount': transaction.amount})
-    
-    if transactions_array:
-        response = {
-            'success': True,
-            'data': transactions_array
-        }
-        return jsonify(response), 200
-    else:
-        response = {
-            'success': False,
-            'error': 'Server Error'
-        }
-        return jsonify(response), 500
-    
+@app.route("/api/v1/transactions", methods=["GET", "POST"])
+def transactions():
+    if request.method == "GET":
+        transactions = Transaction.select()
+        transactions_array = []
+        for transaction in transactions:
+            transactions_array.append({'id': transaction.id, 'text': transaction.text, 'amount': transaction.amount})
+        
+        if transactions_array:
+            response = {
+                'success': True,
+                'data': transactions_array
+            }
+            return jsonify(response), 200
+        else:
+            response = {
+                'success': False,
+                'error': 'Server Error'
+            }
+            return jsonify(response), 500
+    elif request.method == "POST":
+        text = request.json.get('text')
+        amount = request.json.get('amount')
 
-    # query = Transaction.select()
-    # data = [i for i in query]
-    # if data:
-    #     output = {
-    #         'success': True,
-    #         'data': data
-    #     }
-    #     res = jsonify(output)
-    #     res.status_code = 200
-    # else:
-    #     output = {
-    #         'success': False,
-    #         'error': 'Server error'
-    #     }
-    #     res = jsonify(output)
-    #     res.status_code = 404
-    # return res
+        transaction = Transaction(text=text, amount=amount)
+
+        if transaction.save():
+            response = {
+                'success': True,
+                'message': 'Transaction successfully created',
+                'data': {'id': transaction.id, 'text': transaction.text, 'amount': transaction.amount}
+            }
+            return jsonify(response)
+        else:
+            response = {
+                'success': False,
+                'error': 'Server Error'
+            }
+            return jsonify(response)
 
 if __name__ == "__main__":
     app.run()
