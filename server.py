@@ -1,5 +1,6 @@
 import peeweedbevolve
-from flask import Flask, render_template, request, json, jsonify
+from flask import Flask, render_template, request, jsonify
+import simplejson as json
 from models import db, Transaction
 from flask_cors import CORS
 
